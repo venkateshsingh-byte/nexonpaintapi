@@ -33,6 +33,7 @@ const api = process.env.API_URL;
 const productsRouter = require('./routers/products');
 const categoriesRouter = require('./routers/categories');
 const subcategoriesRouter = require('./routers/subcategories'); 
+const subsubcategoriesRouter = require('./routers/subsubcategories');
 const usersRouter = require('./routers/users');
 const cityRouter = require('./routers/cities');
 const storeRouter = require('./routers/stores');
@@ -42,7 +43,8 @@ const contactRouter = require('./routers/contact');
 
 app.use(`${api}/products`, productsRouter); 
 app.use(`${api}/categories`, categoriesRouter);
-app.use(`${api}/subcategories`, subcategoriesRouter);
+app.use(`${api}/subcategories`, subcategoriesRouter);  
+app.use(`${api}/subsubcategories`, subsubcategoriesRouter);  
 app.use(`${api}/users`, usersRouter);  
 app.use(`${api}/cities`,cityRouter);
 app.use(`${api}/stores`,storeRouter)

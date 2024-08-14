@@ -10,5 +10,4 @@ router.put('/edit/:id', AttributeImg, productController.editProduct);
 router.delete('/:id', productController.deleteProduct); 
 
 
-
 module.exports = router; 
