@@ -1,11 +1,15 @@
 const mongoose = require('mongoose')
 
 const commonFormSchema = new mongoose.Schema({
-    fname: {
+    sku: {
         type: String,
         required: true,
     },
-    lname: {
+    sku_subtitle: {
+        type: String,
+        required: true,
+    },
+    name: {
         type: String,
         required: true,
     },
@@ -14,24 +18,6 @@ const commonFormSchema = new mongoose.Schema({
         required: true,
     },
     phone: {
-        type: String,
-        required: true,
-    },
-    city: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'City',
-        required: true,
-    },
-    store: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Store',
-        required: true
-    },
-    npuser: {
-        type: String,
-        required: true,
-    },
-    message: {
         type: String,
         required: true,
     },

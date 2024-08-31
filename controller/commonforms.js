@@ -26,35 +26,14 @@ module.exports.getCommonFormById = async function(req, res){
 
 module.exports.addCommonForm = async function (req, res) {
     try {
-        const { fname, lname, email, phone, city, store, npuser, message } = req.body;
-
-        if (!mongoose.Types.ObjectId.isValid(city)) {
-            return res.status(400).json({ success: false, message: "Invalid City ID" });
-        }
-
-        const cityCheck = await City.findById(city);
-        if (!cityCheck) {
-            return res.status(404).json({ success: false, message: "City Not Found" });
-        }
-
-        if (!mongoose.Types.ObjectId.isValid(store)) {
-            return res.status(400).json({ success: false, message: "Invalid Store ID" });
-        }
-
-        const storeCheck = await Store.findById(store);
-        if (!storeCheck) {
-            return res.status(404).json({ success: false, message: "Store Not Found" });
-        }
+        const { sku, sku_subtitle, email, phone, name } = req.body;
 
         const commonForm = new CommonForm({
-            fname,
-            lname,
+            sku,
+            sku_subtitle,
             email,
             phone,
-            city: cityCheck._id,
-            store: storeCheck._id,
-            npuser,
-            message,
+            name,
         });
 
         await commonForm.save();

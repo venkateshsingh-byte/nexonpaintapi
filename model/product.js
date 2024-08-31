@@ -5,6 +5,10 @@ const variationSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    sku_subtitle: {
+        type: String,
+        required: true,
+    },
     single_img: {
         type: String,
         required: true,

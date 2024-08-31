@@ -3,7 +3,6 @@ const mongoose = require('mongoose')
 const appointmentSchema = new mongoose.Schema({
     toa: {
         type: String,
-        required: true,
     },
     fname: {
         type: String,
@@ -22,24 +21,28 @@ const appointmentSchema = new mongoose.Schema({
         required: true,
     },
     city: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'City',
+        type: String,
         required: true,
     },
     store: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Store',
-        required: true
+        type: String,
     },
     ap_date: {
         type: String,
-        required: true,
     },
     ap_time: {
         type: String,
-        required: true,
     },
     i_am: {
+        type: String,
+    },
+    utm_source:{
+        type: String,
+    },
+    utm_medium:{
+        type: String,
+    },
+    utm_campaign:{
         type: String,
     },
     createdDate: {

@@ -26,18 +26,20 @@ module.exports.getCategoryById = async function(req, res){
     }
 } 
 
-module.exports.addCategory = async function(req, res){
-    try{
+module.exports.addCategory = async function(req, res) {
+    try {
         const category = new Category({
-            cat_name:req.body.cat_name
-        })
+            cat_name: req.body.cat_name,
+            cat_url: req.body.cat_url,
+        });
 
         await category.save();
-        return res.status(200).json({success:true, message:"Category Add Successfully"})
-    }catch{
-        return res.status(500).json({success:false, message:"Internal Server error"})
+        return res.status(200).json({ success: true, message: "Category added successfully" });
+    } catch (error) {
+        console.error('Error saving category:', error);
+        return res.status(500).json({ success: false, message: "Internal Server Error" });
     }
-}
+};
 
 module.exports.editCategory = async function(req, res){
     try{
@@ -45,6 +47,7 @@ module.exports.editCategory = async function(req, res){
             req.params.id,
             {
                 cat_name:req.body.cat_name,
+                cat_url :req.body.cat_url,
             },
             {new:true},
         )

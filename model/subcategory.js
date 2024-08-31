@@ -10,6 +10,10 @@ const subcategorySchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    subcat_url:{
+        type:String,
+        reqiired:true,
+    },
     meta_title: {
         type: String,
         required: false

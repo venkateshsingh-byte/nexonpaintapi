@@ -5,6 +5,10 @@ const categorySchema = new mongoose.Schema({
         type:String,
         reqiired:true,
     },
+    cat_url:{
+        type:String,
+        reqiired:true,
+    },
     dateCreated:{
         type:Date,
         default:Date.now

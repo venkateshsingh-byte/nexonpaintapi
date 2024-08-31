@@ -84,7 +84,7 @@ module.exports.getSubsubcategoryBySubCategory = async function(req, res) {
 // Add new subsubcategory
 module.exports.addSubsubcategory = async function(req, res) {
     try {
-        const { category, subcategory, subsubcat_name, meta_title, meta_desc } = req.body;
+        const { category, subcategory, subsubcat_name, subsubcat_url, meta_title, meta_desc } = req.body;
         
         if (!mongoose.Types.ObjectId.isValid(category)) {
             console.log('Invalid Category ID:', category);
@@ -112,6 +112,7 @@ module.exports.addSubsubcategory = async function(req, res) {
             category: cat._id,
             subcategory: subcat._id,
             subsubcat_name,
+            subsubcat_url,
             meta_title,
             meta_desc
         });
@@ -127,7 +128,7 @@ module.exports.addSubsubcategory = async function(req, res) {
 // Edit subsubcategory
 module.exports.editSubsubcategory = async function(req, res) {
     try {
-        const { category, subcategory, subsubcat_name, meta_title, meta_desc } = req.body;
+        const { category, subcategory, subsubcat_name, subsubcat_url, meta_title, meta_desc } = req.body;
 
         // Validate and find category
         if (!mongoose.Types.ObjectId.isValid(category)) {
@@ -154,6 +155,7 @@ module.exports.editSubsubcategory = async function(req, res) {
                 subsubcat_name,
                 meta_title,
                 meta_desc,
+                subsubcat_url,
                 category: cat._id,
                 subcategory: subcat._id
             },

@@ -33,8 +33,10 @@ module.exports.getAppointmentById = async function(req, res){
 
 module.exports.addAppointment = async function (req, res) {
     try {
-        const { toa, fname, lname, email, phone, city, store, ap_date, ap_time, i_am } = req.body;
+        const { toa, fname, lname, email, phone, city, store, i_am, utm_source, utm_medium, utm_campaign } = req.body;
 
+        
+        /*
         if (!mongoose.Types.ObjectId.isValid(city)) {
             return res.status(400).json({ success: false, message: "Invalid City ID" });
         }
@@ -51,7 +53,7 @@ module.exports.addAppointment = async function (req, res) {
         const storeCheck = await Store.findById(store);
         if (!storeCheck) {
             return res.status(404).json({ success: false, message: "Store Not Found" });
-        }
+        } */
 
         const appointment = new Appointment({
             toa,
@@ -59,10 +61,11 @@ module.exports.addAppointment = async function (req, res) {
             lname,
             email,
             phone,
-            city: cityCheck._id,
-            store: storeCheck._id,
-            ap_date,
-            ap_time,
+            city,
+            store,
+            utm_source,
+            utm_medium,
+            utm_campaign,
             i_am
         });
 
