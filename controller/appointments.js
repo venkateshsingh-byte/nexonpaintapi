@@ -33,7 +33,7 @@ module.exports.getAppointmentById = async function(req, res){
 
 module.exports.addAppointment = async function (req, res) {
     try {
-        const { toa, fname, lname, email, phone, city, store, i_am, utm_source, utm_medium, utm_campaign } = req.body;
+        const { toa, fname, lname, email, phone, city, store, iam, utm_source, utm_medium, utm_campaign } = req.body;
 
         
         /*
@@ -46,7 +46,7 @@ module.exports.addAppointment = async function (req, res) {
             return res.status(404).json({ success: false, message: "City Not Found" });
         }
 
-        if (!mongoose.Types.ObjectId.isValid(store)) {
+        if (!mongoose.Types.ObjectId.isValid(store)) {  
             return res.status(400).json({ success: false, message: "Invalid Store ID" });
         }
 
@@ -66,7 +66,7 @@ module.exports.addAppointment = async function (req, res) {
             utm_source,
             utm_medium,
             utm_campaign,
-            i_am
+            iam
         });
 
         await appointment.save();

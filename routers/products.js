@@ -9,6 +9,6 @@ router.post('/add', AttributeImg, productController.addProduct);
 router.put('/edit/:id', AttributeImg, productController.editProduct);
 router.delete('/:id', productController.deleteProduct);  
 router.get('/:category?/:subcategory?/:subsubcategory?', productController.routingsubsubcategory);  
-router.get('/category/:category', productController.routingcategory);  
+//router.get('/category/:category', productController.routingcategory);  
 
 module.exports = router; 

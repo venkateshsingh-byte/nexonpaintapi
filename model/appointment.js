@@ -33,7 +33,7 @@ const appointmentSchema = new mongoose.Schema({
     ap_time: {
         type: String,
     },
-    i_am: {
+    iam: {
         type: String,
     },
     utm_source:{

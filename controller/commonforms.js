@@ -1,11 +1,9 @@
 const { default: mongoose } = require('mongoose');
 const CommonForm = require('../model/commonform');
-const City    = require('../model/city');
-const Store = require('../model/store')
  
 module.exports.getCommonForm = async function(req, res){
     try{
-        const commonForm = await CommonForm.find().sort().populate('city').populate('store');
+        const commonForm = await CommonForm.find().sort();
         return res.status(200).json({success:true,commonForm});
     } catch {
         return res.status(500).json({success:false, message:"Internal Server Error"})
@@ -14,7 +12,7 @@ module.exports.getCommonForm = async function(req, res){
 
 module.exports.getCommonFormById = async function(req, res){
     try{
-        const commonForm = await CommonForm.findById(req.params.id).populate('city').populate('store');
+        const commonForm = await CommonForm.findById(req.params.id)
         if(!commonForm){
             return res.status(404).json({success:false,message:"Form Can not found!"})
         }

@@ -239,7 +239,7 @@ module.exports.countProduct = async function (req, res) {
       return res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
     }
 }
-
+/*
 module.exports.routingcategory = async function (req, res) {   
     try {
         const { category } = req.params;
@@ -278,27 +278,26 @@ module.exports.routingcategory = async function (req, res) {
         }
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
-};
+};*/
 
 
-module.exports.routingsubsubcategory = async function (req, res) {
+module.exports.routingsubsubcategory = async function (req, res) { 
     try {
         const { category, subcategory, subsubcategory } = req.params;
-        //console.log("Check Query Params:", req.params);
-
+        
         const query = {};
 
-        // Fetch and validate category ID
+    
         if (category) {
             const categoryObj = await Category.findOne({ cat_url: category });
             if (!categoryObj) {
                 return res.status(404).json({ success: false, message: "Category not found" });
             }
-            console.log("Check Category Id:",categoryObj)
-            query.category = categoryObj._id; // Make sure this is an ObjectId
+            console.log("Category Object:", categoryObj);
+            query.category = categoryObj._id; 
         }
 
-        // Fetch and validate subcategory ID
+       
         if (subcategory && query.category) {
             const subcategoryObj = await Subcategory.findOne({
                 subcat_url: subcategory,
@@ -307,10 +306,11 @@ module.exports.routingsubsubcategory = async function (req, res) {
             if (!subcategoryObj) {
                 return res.status(404).json({ success: false, message: "Subcategory not found" });
             }
-            query.subcategory = subcategoryObj._id; // Make sure this is an ObjectId
+            console.log("SubCategory Object:", subcategoryObj);
+            query.subcategory = subcategoryObj._id; 
         }
 
-        // Fetch and validate subsubcategory ID
+       
         if (subsubcategory && query.category && query.subcategory) {
             const subsubcategoryObj = await Subsubcategory.findOne({
                 subsubcat_url: subsubcategory,
@@ -320,18 +320,19 @@ module.exports.routingsubsubcategory = async function (req, res) {
             if (!subsubcategoryObj) {
                 return res.status(404).json({ success: false, message: "Subsubcategory not found" });
             }
-            query.subsubcategory = subsubcategoryObj._id; // Make sure this is an ObjectId
+            console.log("SubsubCategory Object:", subsubcategoryObj);
+            query.subsubcategory = subsubcategoryObj._id; 
         }
 
         console.log("Final Query Object:", query);
 
-        // Find products based on the constructed query
+      
         const products = await Product.find(query).populate('category subcategory subsubcategory');
         if (!products.length) {
             return res.status(404).json({ success: false, message: "No products found" });
         }
 
-        res.status(200).json({ success: true, message: "Product Category Data fetched Successfully!", products });
+        res.status(200).json({ success: true, message: "Product SubsubCategory Data fetched Successfully!", products });   
     } catch (error) {
         console.error('Error fetching products:', error);
         if (error.name === 'CastError') {
