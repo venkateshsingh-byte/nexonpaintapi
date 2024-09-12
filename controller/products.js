@@ -65,7 +65,8 @@ module.exports.addProduct = async function (req, res) {
         console.log('Request Body:', req.body);
         console.log('Request Files:', req.files);
 
-        const { product_title, product_subtitle, short_desc, long_desc, category, subcategory, subsubcategory, attributes } = req.body;
+        const { product_title, product_subtitle, short_desc, long_desc, category, subcategory, subsubcategory, attributes, 
+            features, specs, installation_service, additional_info, returns_warranty, spend_save, need_help, free_shipping } = req.body;
 
         const basePathSingleImg = `${req.protocol}://${req.get('host')}/public/uploads/singleImg/`;
         const basePathColorImg = `${req.protocol}://${req.get('host')}/public/uploads/colorImg/`;
@@ -126,7 +127,15 @@ module.exports.addProduct = async function (req, res) {
             category: cat._id,
             subcategory: subcat._id,
             subsubcategory: subsubcat._id,
-            attributes: parsedAttributes
+            attributes: parsedAttributes,
+            features,
+            specs,
+            installation_service,
+            additional_info,
+            returns_warranty,
+            spend_save,
+            need_help,
+            free_shipping
         });
 
         // Save the product to the database
@@ -140,7 +149,8 @@ module.exports.addProduct = async function (req, res) {
 
 module.exports.editProduct = async function (req, res) {
     try {
-        const { product_title, product_subtitle, short_desc, long_desc, category, subcategory, subsubcategory, attributes } = req.body;
+        const { product_title, product_subtitle, short_desc, long_desc, category, subcategory, subsubcategory, attributes,
+            features, specs, installation_service, additional_info, returns_warranty, spend_save, need_help, free_shipping } = req.body;
 
         const basePathSingleImg = `${req.protocol}://${req.get('host')}/public/uploads/singleImg/`;
         const basePathColorImg = `${req.protocol}://${req.get('host')}/public/uploads/colorImg/`;
@@ -200,7 +210,15 @@ module.exports.editProduct = async function (req, res) {
             category: cat._id,
             subcategory: subcat._id,
             subsubcategory: subsubcat._id,
-            attributes: parsedAttributes
+            attributes: parsedAttributes,
+            features,
+            specs,
+            installation_service,
+            additional_info,
+            returns_warranty,
+            spend_save,
+            need_help,
+            free_shipping
         }, { new: true });
 
         if (product) {
