@@ -1,4 +1,7 @@
+const ejs = require("ejs");
+const path = require("path");
 const Contact = require('../model/contact');
+const transporter = require("../utils/transporter");
  
 module.exports.getContact = async function(req, res){
     try{
@@ -11,7 +14,8 @@ module.exports.getContact = async function(req, res){
 
 module.exports.getContactById = async function(req, res){
     try{
-        const contact = await Contact.findById().sort();
+        const Id = req.params.id;
+        const contact = await Contact.findById(Id).sort();
         return res.status(200).json({success:true,contact});
     } catch {
         return res.status(500).json({success:false, message:"Internal Server Error"})
@@ -19,22 +23,57 @@ module.exports.getContactById = async function(req, res){
 }
 
 module.exports.addContact = async function (req, res) {
-    try {
-        const { name, city, phone, email, request } = req.body;
+  try {
+    const {
+      help_you,
+      reaching_out,
+      full_name,
+      mobile_number,
+      active_email,
+      your_state,
+      your_city,
+      surface_painting,
+      tell_more,
+      agree,
+    } = req.body;
 
-        const contact = new Contact({
-            name,
-            city,
-            phone,
-            email,
-            request,
-        });
+    const contact = new Contact({
+      help_you,
+      reaching_out,
+      full_name,
+      mobile_number,
+      active_email,
+      your_state,
+      your_city,
+      surface_painting,
+      tell_more,
+      agree,
+    });
 
-        await contact.save();
-        return res.status(201).json({ success: true, message: "Contact Form Submited Successfully", contact });
-    } catch (err) {
-        return res.status(500).json({ success: false, message: "Internal Server Error", error: err.message });
-    }
+    await contact.save();
+
+    // ✅ Render email template
+    const templatePath = path.join(__dirname, "../templates/emailContact.ejs");
+    const emailHtml = await ejs.renderFile(templatePath, { contact });
+
+    // ✅ Send Email
+    await transporter.sendMail({
+      from: `"Website Contact" <${process.env.EMAIL_USER}>`,
+      to: "venkatesh.singh@plugincomm.com", // admin email
+      subject: "New Contact Form Submission",
+      html: emailHtml,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Contact Form Submitted Successfully & Email Sent",
+      contact,
+    });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error", error: err.message });
+  }
 };
 
 /*
@@ -43,6 +82,6 @@ module.exports.addContact = async function (req, res) {
     "city":"Ram",
     "phone":"9555400872",
     "email":"ram@gmail.com",
-    "request":"Please describe in detail your request, question or issue with your product",
+    "requirements":"Please describe in detail your request, question or issue with your product",
 }
 */

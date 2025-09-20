@@ -1,102 +1,46 @@
 const mongoose = require('mongoose');
 
-const variationSchema = new mongoose.Schema({
-    sku: {
-        type: String,
-        required: true,
-    },
-    sku_subtitle: {
-        type: String,
-        required: true,
-    },
-    single_img: {
-        type: String,
-        required: true,
-    },
-    price: {
-        type: Number,
-        required: true,
-    },
-    sale_price: {
-        type: Number,
-        required: true,
-    },
-    color_name: {
-        type: String,
-        required: true,
-    },
-    color_image: {
-        type: String,
-        required: true,
-    },
-    stock: {
-        type: Number,
-        default: 0,
-    },
+const productDetailSchema = new mongoose.Schema({
+  product_name: { type: String, required: false },   
+  product_img: { type: String, required: false },
+  product_small_img:{ type: String, required: false },
+  product_subname: { type: String, required: false },
+  product_desc: { type: String, required: false },
+  technical_datasheet: { type: String },
+  warranty_document: { type: String },
+  benefit: { type: String },
+  green_pro_certificate: { type: String },
+  application_process: { type: String },
+  meta_title: { type: String },
+	meta_desc: { type: String },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Category",
+    required: false,
+  },
+  subcategory: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Subcategory",
+    required: false,
+  },
+  typeofproduct: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "TypeOfProduct", // matches your current model registration
+    required: false,
+  },
+  slug: { type: String, required: false, unique: true },
+  dateCreated: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-const productSchema = new mongoose.Schema({
-    product_title: {
-        type: String,
-        required: true,
-    },
-    product_subtitle: {
-        type: String,
-        required: true,
-    },
-    short_desc: {
-        type: String,
-        required: false,
-    },
-    long_desc: {
-        type: String,
-        required: false,
-    },
-    category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
-        required: true,
-    },
-    subcategory: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Subcategory',
-        required: true,
-    },
-    subsubcategory: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Subsubcategory',
-        required: true,  
-    },
-    attributes: [variationSchema],
-    features:{
-        type:String
-    },
-    specs:{
-        type:String
-    },
-    installation_service:{
-        type:String
-    },
-    additional_info:{
-        type:String
-    },
-    returns_warranty:{
-        type:String
-    },
-    spend_save:{
-        type:String
-    },
-    need_help:{
-        type:String
-    },
-    free_shipping:{
-        type:String
-    },
-    dateCreated: {
-        type: Date,
-        default: Date.now,
-    },
-});
+const productSchema = new mongoose.Schema(
+  {
+    details: [productDetailSchema],   
+  },
+  { timestamps: true }
+);
 
 productSchema.virtual('id').get(function () {
     return this._id.toHexString();

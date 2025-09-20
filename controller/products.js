@@ -1,54 +1,53 @@
 const Product = require('../model/product');
 const Category = require('../model/category');
 const Subcategory = require('../model/subcategory');
-const Subsubcategory = require('../model/subsubcategory');
+const TypeOfProduct = require('../model/typeofproduct')
 const mongoose = require('mongoose');
 
 
 module.exports.getProduct = async function(req, res) {
-    try {
-        let filter = {};
+  try {
+    let filter = {};
 
-        if (req.query.product_title) {
-            const ProductTitle = req.query.product_title.split(',').map(id => id.trim());
-            filter.product_title = { $in: ProductTitle };
-        }
-
-        if (req.query['attributes.sku']) {
-            const ProductSku = req.query['attributes.sku'].split(',').map(id => id.trim());
-            filter['attributes.sku'] = { $in: ProductSku };
-        }
-
-        if (req.query['subsubcategory.subsubcat_name']) {
-            const SubSubCatA = req.query['subsubcategory.subsubcat_name'].split(',').map(id => id.trim());
-            const subsubcategories = await Subsubcategory.find({ 'subsubcat_name': { $in: SubSubCatA.map(name => new RegExp(name, 'i')) } });
-            const subsubcategoryIds = subsubcategories.map(subsub => subsub._id);
-            filter.subsubcategory = { $in: subsubcategoryIds };
-        }
-
-        const products = await Product.find(filter)
-            .populate('category')
-            .populate('subcategory')
-            .populate('subsubcategory');
-
-        
-        res.status(200).json({ 
-            success: true, 
-            message: "Product Data fetched Successfully!", 
-            products 
-        });
-    } catch (error) {
-        console.error("Error fetching products:", error);
-        return res.status(500).json({ 
-            success: false, 
-            message: "Internal Server Error" 
-        });
+    // Filter by product_name inside details array
+    if (req.query.product_name) {
+      const productNames = req.query.product_name.split(',').map(name => name.trim());
+      filter['details.product_name'] = { $in: productNames };
     }
+
+    const products = await Product.find(filter)
+      .populate({
+        path: 'details.category',
+        model: 'Category', // Ensure Mongoose knows the model
+      })
+      .populate({
+        path: 'details.subcategory',
+        model: 'Subcategory',
+      })
+      .populate({
+        path: 'details.typeofproduct',
+        model: 'Typeofproduct',
+      });
+
+    res.status(200).json({
+      success: true,
+      message: "Product Data fetched Successfully!",
+      products
+    });
+
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message
+    });
+  }
 };
 
 module.exports.getByProductID = async function(req, res) {
     try {
-        const product = await Product.findById(req.params.id).populate('category').populate('subcategory');
+        const product = await Product.findById(req.params.id).populate('category').populate('subcategory').populate('typeofproduct');
         if (product) {
             return res.status(200).json({ success: true, message: "Product fetched by ID Successfully", product });
         } else {
@@ -60,96 +59,102 @@ module.exports.getByProductID = async function(req, res) {
     }
 }
 
+
 module.exports.addProduct = async function (req, res) {
-    try {
-        console.log('Request Body:', req.body);
-        console.log('Request Files:', req.files);
+  try {
+    console.log('Request Body:', req.body);
+    console.log('Request Files:', req.files);
 
-        const { product_title, product_subtitle, short_desc, long_desc, category, subcategory, subsubcategory, attributes, 
-            features, specs, installation_service, additional_info, returns_warranty, spend_save, need_help, free_shipping } = req.body;
+    const {
+      product_name,
+      product_subname,
+      product_desc,
+      technical_datasheet,
+      warranty_document,
+      benefit,
+      green_pro_certificate,
+      application_process,
+      meta_title,
+      meta_desc,
+      category,
+      subcategory,
+      typeofproduct,
+      slug
+    } = req.body;
 
-        const basePathSingleImg = `${req.protocol}://${req.get('host')}/public/uploads/singleImg/`;
-        const basePathColorImg = `${req.protocol}://${req.get('host')}/public/uploads/colorImg/`;
+    // file upload paths
+    const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
+    const productImgFile = req.files?.find(file => file.fieldname === 'product_img');
+    const product_img = productImgFile ? `${basePath}${productImgFile.filename}` : null;
 
-        // Ensure attributes are parsed correctly if received as a JSON string
-        const parsedAttributes = (typeof attributes === 'string' ? JSON.parse(attributes) : attributes).map((attribute, index) => {
-            const singleImgFile = req.files.find(file => file.fieldname === `attributes[${index}][single_img]`);
-            const colorImgFile = req.files.find(file => file.fieldname === `attributes[${index}][color_image]`);
+    const basePathSmall = `${req.protocol}://${req.get('host')}/public/uploads/`;
+    const productSmallImgFile = req.files?.find(file => file.fieldname === 'product_small_img');
+    const product_small_img = productSmallImgFile ? `${basePathSmall}${productSmallImgFile.filename}` : null;
 
-            return {
-                sku: attribute.sku,
-                sku_subtitle: attribute.sku_subtitle,
-                single_img: singleImgFile ? `${basePathSingleImg}${singleImgFile.filename}` : attribute.single_img,
-                price: attribute.price,
-                sale_price: attribute.sale_price,
-                color_name: attribute.color_name,
-                color_image: colorImgFile ? `${basePathColorImg}${colorImgFile.filename}` : attribute.color_image,
-                stock: attribute.stock
-            };
-        });
-
-        // Check if the category ID is valid and exists
-        if (!mongoose.Types.ObjectId.isValid(category)) {
-            return res.status(400).json({ success: false, message: 'Invalid Category ID' });
-        }
-
-        const cat = await Category.findById(category);
-        if (!cat) {
-            return res.status(404).json({ success: false, message: "Category not found" });
-        }
-
-        // Check if the subcategory ID is valid and exists
-        if (!mongoose.Types.ObjectId.isValid(subcategory)) {
-            return res.status(400).json({ success: false, message: 'Invalid Subcategory ID' });
-        }
-
-        const subcat = await Subcategory.findById(subcategory);
-        if (!subcat) {
-            return res.status(404).json({ success: false, message: "Subcategory not found" });
-        }
-
-        // Check if the subsubcategory ID is valid and exists
-        if (!mongoose.Types.ObjectId.isValid(subsubcategory)) {
-            return res.status(400).json({ success: false, message: "Invalid Subsubcategory ID" });
-        }
-
-        const subsubcat = await Subsubcategory.findById(subsubcategory);
-        if (!subsubcat) {
-            return res.status(404).json({ success: false, message: "Subsubcategory not found" });
-        }
-
-        // Create a new product instance
-        const product = new Product({
-            product_title,
-            product_subtitle,
-            short_desc,
-            long_desc,
-            category: cat._id,
-            subcategory: subcat._id,
-            subsubcategory: subsubcat._id,
-            attributes: parsedAttributes,
-            features,
-            specs,
-            installation_service,
-            additional_info,
-            returns_warranty,
-            spend_save,
-            need_help,
-            free_shipping
-        });
-
-        // Save the product to the database
-        await product.save();
-        return res.status(200).json({ success: true, message: "Product submitted successfully", product });
-    } catch (error) {
-        console.error('Error:', error);
-        return res.status(500).json({ success: false, message: "Internal Server Error" });
+    // validate category
+    if (!mongoose.Types.ObjectId.isValid(category)) {
+      return res.status(400).json({ success: false, message: 'Invalid Category ID' });
     }
+    const cat = await Category.findById(category);
+    if (!cat) {
+      return res.status(404).json({ success: false, message: 'Category not found' });
+    }
+
+    // validate subcategory
+    if (!mongoose.Types.ObjectId.isValid(subcategory)) {
+      return res.status(400).json({ success: false, message: 'Invalid Subcategory ID' });
+    }
+    const subcat = await Subcategory.findById(subcategory);
+    if (!subcat) {
+      return res.status(404).json({ success: false, message: 'Subcategory not found' });
+    }
+
+    // validate typeofproduct
+    if (!mongoose.Types.ObjectId.isValid(typeofproduct)) {
+      return res.status(400).json({ success: false, message: 'Invalid Typeofproduct ID' });
+    }
+    const top = await Typeofproduct.findById(typeofproduct);
+    if (!top) {
+      return res.status(404).json({ success: false, message: 'Typeofproduct not found' });
+    }
+
+    // create product with details array
+    const product = new Product({
+      details: [
+        {
+          product_name,
+          product_subname,
+          product_desc,
+          technical_datasheet,
+          warranty_document,
+          benefit,
+          green_pro_certificate,
+          application_process,
+          meta_title,
+          meta_desc,
+          product_img,
+          product_small_img,
+          category: cat._id,
+          subcategory: subcat._id,
+          typeofproduct: top._id,
+          slug
+        }
+      ]
+    });
+
+    await product.save();
+    return res.status(200).json({ success: true, message: "Product submitted successfully", product });
+
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
 };
+
 
 module.exports.editProduct = async function (req, res) {
     try {
-        const { product_title, product_subtitle, short_desc, long_desc, category, subcategory, subsubcategory, attributes,
+        const { product_title, product_subtitle, short_desc, long_desc, category, subcategory, attributes,
             features, specs, installation_service, additional_info, returns_warranty, spend_save, need_help, free_shipping } = req.body;
 
         const basePathSingleImg = `${req.protocol}://${req.get('host')}/public/uploads/singleImg/`;
@@ -190,16 +195,6 @@ module.exports.editProduct = async function (req, res) {
         const subcat = await Subcategory.findById(subcategory);
         if (!subcat) {
             return res.status(404).json({ success: false, message: "Subcategory not found" });
-        }
-
-        // Check if the subsubcategory ID is valid and exists
-        if (!mongoose.Types.ObjectId.isValid(subsubcategory)) {
-            return res.status(400).json({ success: false, message: "Invalid Subsubcategory ID" });
-        }
-
-        const subsubcat = await Subsubcategory.findById(subsubcategory);
-        if (!subsubcat) {
-            return res.status(404).json({ success: false, message: "Subsubcategory not found" });
         }
 
         const product = await Product.findByIdAndUpdate(req.params.id, {
@@ -209,7 +204,6 @@ module.exports.editProduct = async function (req, res) {
             long_desc,
             category: cat._id,
             subcategory: subcat._id,
-            subsubcategory: subsubcat._id,
             attributes: parsedAttributes,
             features,
             specs,
@@ -299,9 +293,9 @@ module.exports.routingcategory = async function (req, res) {
 };*/
 
 
-module.exports.routingsubsubcategory = async function (req, res) { 
+module.exports.routingsubcategory = async function (req, res) { 
     try {
-        const { category, subcategory, subsubcategory } = req.params;
+        const { category, subcategory } = req.params;
         
         const query = {};
 
@@ -329,28 +323,15 @@ module.exports.routingsubsubcategory = async function (req, res) {
         }
 
        
-        if (subsubcategory && query.category && query.subcategory) {
-            const subsubcategoryObj = await Subsubcategory.findOne({
-                subsubcat_url: subsubcategory,
-                category: query.category,
-                subcategory: query.subcategory
-            });
-            if (!subsubcategoryObj) {
-                return res.status(404).json({ success: false, message: "Subsubcategory not found" });
-            }
-            console.log("SubsubCategory Object:", subsubcategoryObj);
-            query.subsubcategory = subsubcategoryObj._id; 
-        }
-
         console.log("Final Query Object:", query);
 
       
-        const products = await Product.find(query).populate('category subcategory subsubcategory');
+        const products = await Product.find(query).populate('category subcategory');
         if (!products.length) {
             return res.status(404).json({ success: false, message: "No products found" });
         }
 
-        res.status(200).json({ success: true, message: "Product SubsubCategory Data fetched Successfully!", products });   
+        res.status(200).json({ success: true, message: "Product SubCategory Data fetched Successfully!", products });   
     } catch (error) {
         console.error('Error fetching products:', error);
         if (error.name === 'CastError') {

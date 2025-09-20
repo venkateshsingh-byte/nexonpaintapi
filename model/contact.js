@@ -1,25 +1,38 @@
 const mongoose = require('mongoose')
 
 const contactSchema = new mongoose.Schema({
-    name: {
+    help_you: {
         type: String,
         required: true,
     },
-    city: {
+    reaching_out: {
         type: String,
         required: true,
     },
-    phone: {
+    full_name: {
         type: String,
         required: true,
     },
-    email: {
+    mobile_number: {
         type: String,
-        required: true,
     },
-    request: {
+    active_email: {
         type: String,
-        required: true,
+    },
+    your_state: {
+        type: String,
+    },
+    your_city: {
+        type: String,
+    },
+    surface_painting: {
+        type: String,
+    },
+    tell_more: {
+        type: String,
+    },
+    agree: {
+        type: String,
     },
     createdDate: {
         type: Date,

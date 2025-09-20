@@ -33,6 +33,7 @@ module.exports.getSubsubcategoryByID = async function(req, res) {
     }
 };
 
+//Get Subcategory Behalf Category
 module.exports.getSubcategoryByCategory = async (req, res) => {
     try {
         const { categoryId } = req.params;

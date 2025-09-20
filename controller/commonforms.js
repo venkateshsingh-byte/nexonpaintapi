@@ -23,15 +23,15 @@ module.exports.getCommonFormById = async function(req, res){
 }
 
 module.exports.addCommonForm = async function (req, res) {
-    try {
-        const { sku, sku_subtitle, email, phone, name } = req.body;
+    try { 
+        const { sku, sku_subtitle, name, email, phone  } = req.body;  
 
         const commonForm = new CommonForm({
             sku,
             sku_subtitle,
+            name,
             email,
             phone,
-            name,
         });
 
         await commonForm.save();

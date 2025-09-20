@@ -1,5 +1,5 @@
 const User = require('../model/user');
-const bcrypt = require('bcryptjs');
+const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
 
 module.exports.getUser = async function (req, res) {
@@ -27,6 +27,15 @@ module.exports.getUserById = async function (req, res) {
 module.exports.addUser = async function (req, res) {
   try {
     const { username, email, password, isAdmin, status } = req.body;
+
+    console.log("Check Add User:",req.body)
+    if (!username || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Username, email, and password are required",
+      });
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -35,13 +44,22 @@ module.exports.addUser = async function (req, res) {
       email,
       password: hashedPassword,
       isAdmin,
-      status
+      status,
     });
 
     const savedUser = await newUser.save();
-    res.status(201).json({ success: true, message: "User Registered successfully!", user: savedUser });
+
+    res.status(201).json({
+      success: true,
+      message: "User Registered successfully!",
+      user: savedUser,
+    });
   } catch (err) {
-    res.status(500).json({ success: false, message: "User cannot be created!", error: err.message });
+    res.status(500).json({
+      success: false,
+      message: "User cannot be created!",
+      error: err.message,
+    });
   }
 };
 

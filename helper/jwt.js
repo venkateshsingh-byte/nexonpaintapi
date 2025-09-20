@@ -10,15 +10,22 @@ function authJwt() {
         isRevoked: isRevoked
     }).unless({
         path: [
-            { url: /^\/public\/upload\/single_img\/(.*)/, methods: ['GET', 'DELETE', 'POST', 'PUT', 'OPTIONS'] },
-            { url: /^\/public\/upload\/color_image\/(.*)/, methods: ['GET', 'DELETE', 'POST', 'PUT', 'OPTIONS'] },  
+            // Public uploaded files (fixed uploads path)
+            { url: /^\/public\/upload\/color_image\/(.*)/, methods: ['GET', 'DELETE', 'POST', 'PUT', 'OPTIONS'] }, 
+            { url: /^\/public\/upload\/attached_invoices\/(.*)/, methods: ['GET', 'DELETE', 'POST', 'PUT', 'OPTIONS'] },    
+            { url: /^\/public\/upload\/slider_img\/(.*)/, methods: ['GET', 'DELETE', 'POST', 'PUT', 'OPTIONS'] },   
+            { url: /^\/public\/upload\/inspired_img\/(.*)/, methods: ['GET', 'DELETE', 'POST', 'PUT', 'OPTIONS'] },  
+            { url: /^\/public\/upload\/product_img\/(.*)/, methods: ['GET', 'DELETE', 'POST', 'PUT', 'OPTIONS'] }, 
+            { url: /^\/public\/upload\/branch_img\/(.*)/, methods: ['GET', 'DELETE', 'POST', 'PUT', 'OPTIONS'] },
+            
+            // Public API routes
             { url: /\/api\/v1\/products(.*)/, methods: ['GET', 'DELETE', 'POST', 'PUT', 'OPTIONS'] },
             { url: /\/api\/v1\/categories(.*)/, methods: ['GET', 'DELETE', 'POST', 'PUT', 'OPTIONS'] },
             { url: /\/api\/v1\/subcategories(.*)/, methods: ['GET', 'DELETE', 'POST', 'PUT', 'OPTIONS'] },
             { url: /\/api\/v1\/users(.*)/, methods: ['GET', 'DELETE', 'POST', 'PUT', 'OPTIONS'] },
             { url: /\/api\/v1\/catvideos(.*)/, methods: ['GET', 'DELETE', 'POST', 'PUT', 'OPTIONS'] },
             `${api}/users/login`,
-            `${api}/users/register`
+            `${api}/users/add`
         ]
     });
 }

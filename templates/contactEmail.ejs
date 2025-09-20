@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .box { padding: 20px; border: 1px solid #ddd; }
+    h2 { color: #2E86C1; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>📩 New Contact Submission</h2>
+    <p><b>Help You:</b> <%= contact.help_you %></p>
+    <p><b>Reaching Out For:</b> <%= contact.reaching_out %></p>
+    <p><b>Full Name:</b> <%= contact.full_name %></p>
+    <p><b>Mobile:</b> <%= contact.mobile_number %></p>
+    <p><b>Email:</b> <%= contact.active_email %></p>
+    <p><b>State:</b> <%= contact.your_state %></p>
+    <p><b>City:</b> <%= contact.your_city %></p>
+    <p><b>Surface Painting:</b> <%= contact.surface_painting %></p>
+    <p><b>Tell More:</b> <%= contact.tell_more %></p>
+    <p><b>Agree:</b> <%= contact.agree ? "✅ Yes" : "❌ No" %></p>
+  </div>
+</body>
+</html>
