@@ -4,39 +4,22 @@ const Subcategory = require('../model/subcategory');
 const TypeOfProduct = require('../model/typeofproduct')
 const mongoose = require('mongoose');
 
-
 module.exports.getProduct = async function(req, res) {
   try {
-    let filter = {};
-
-    // Filter by product_name inside details array
-    if (req.query.product_name) {
-      const productNames = req.query.product_name.split(',').map(name => name.trim());
-      filter['details.product_name'] = { $in: productNames };
-    }
-
-    const products = await Product.find(filter)
-      .populate({
-        path: 'details.category',
-        model: 'Category', // Ensure Mongoose knows the model
-      })
-      .populate({
-        path: 'details.subcategory',
-        model: 'Subcategory',
-      })
-      .populate({
-        path: 'details.typeofproduct',
-        model: 'Typeofproduct',
-      });
+   
+    const products = await Product.find()
+      .populate('category')        // populate category name
+      .populate('subcategory') // populate subcategory name
+      .populate('typeofproduct');     // populate type name
 
     res.status(200).json({
       success: true,
-      message: "Product Data fetched Successfully!",
+      message: "Product Data fetched successfully",
       products
     });
 
   } catch (error) {
-    console.error("Error fetching products:", error);
+    console.error('Error fetching products:', error);
     return res.status(500).json({
       success: false,
       message: "Internal Server Error",
@@ -44,6 +27,7 @@ module.exports.getProduct = async function(req, res) {
     });
   }
 };
+
 
 module.exports.getByProductID = async function(req, res) {
     try {
@@ -62,17 +46,11 @@ module.exports.getByProductID = async function(req, res) {
 
 module.exports.addProduct = async function (req, res) {
   try {
-    console.log('Request Body:', req.body);
-    console.log('Request Files:', req.files);
-
     const {
       product_name,
       product_subname,
       product_desc,
-      technical_datasheet,
-      warranty_document,
       benefit,
-      green_pro_certificate,
       application_process,
       meta_title,
       meta_desc,
@@ -82,149 +60,160 @@ module.exports.addProduct = async function (req, res) {
       slug
     } = req.body;
 
-    // file upload paths
-    const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
-    const productImgFile = req.files?.find(file => file.fieldname === 'product_img');
-    const product_img = productImgFile ? `${basePath}${productImgFile.filename}` : null;
 
-    const basePathSmall = `${req.protocol}://${req.get('host')}/public/uploads/`;
-    const productSmallImgFile = req.files?.find(file => file.fieldname === 'product_small_img');
-    const product_small_img = productSmallImgFile ? `${basePathSmall}${productSmallImgFile.filename}` : null;
+    // Validate relations (optional)
+    let cat = null, subcat = null, top = null;
 
-    // validate category
-    if (!mongoose.Types.ObjectId.isValid(category)) {
-      return res.status(400).json({ success: false, message: 'Invalid Category ID' });
-    }
-    const cat = await Category.findById(category);
-    if (!cat) {
-      return res.status(404).json({ success: false, message: 'Category not found' });
+    if (category) {
+      if (!mongoose.Types.ObjectId.isValid(category)) 
+        return res.status(400).json({ success: false, message: "Invalid Category ID" });
+      cat = await Category.findById(category);
+      if (!cat) return res.status(404).json({ success: false, message: "Category not found" });
     }
 
-    // validate subcategory
-    if (!mongoose.Types.ObjectId.isValid(subcategory)) {
-      return res.status(400).json({ success: false, message: 'Invalid Subcategory ID' });
-    }
-    const subcat = await Subcategory.findById(subcategory);
-    if (!subcat) {
-      return res.status(404).json({ success: false, message: 'Subcategory not found' });
+    if (subcategory) {
+      if (!mongoose.Types.ObjectId.isValid(subcategory)) 
+        return res.status(400).json({ success: false, message: "Invalid Subcategory ID" });
+      subcat = await Subcategory.findById(subcategory);
+      if (!subcat) return res.status(404).json({ success: false, message: "Subcategory not found" });
     }
 
-    // validate typeofproduct
-    if (!mongoose.Types.ObjectId.isValid(typeofproduct)) {
-      return res.status(400).json({ success: false, message: 'Invalid Typeofproduct ID' });
-    }
-    const top = await Typeofproduct.findById(typeofproduct);
-    if (!top) {
-      return res.status(404).json({ success: false, message: 'Typeofproduct not found' });
+    if (typeofproduct) {
+      if (!mongoose.Types.ObjectId.isValid(typeofproduct)) 
+        return res.status(400).json({ success: false, message: "Invalid TypeOfProduct ID" });
+      top = await TypeOfProduct.findById(typeofproduct);
+      if (!top) return res.status(404).json({ success: false, message: "TypeOfProduct not found" });
     }
 
-    // create product with details array
+    // File uploads
+    const technical_PDF = req.files?.technical_datasheet?.[0];  
+    const warranty_PDF  = req.files?.warranty_document?.[0];  
+    const green_PDF     = req.files?.green_pro_certificate?.[0]; 
+
+    // Create single product
     const product = new Product({
-      details: [
-        {
-          product_name,
-          product_subname,
-          product_desc,
-          technical_datasheet,
-          warranty_document,
-          benefit,
-          green_pro_certificate,
-          application_process,
-          meta_title,
-          meta_desc,
-          product_img,
-          product_small_img,
-          category: cat._id,
-          subcategory: subcat._id,
-          typeofproduct: top._id,
-          slug
-        }
-      ]
+      product_name,
+      product_subname,
+      product_desc,
+      benefit,
+      application_process,
+      meta_title,
+      meta_desc,
+      technical_datasheet: technical_PDF ? technical_PDF.filename : null,
+      warranty_document:  warranty_PDF ? warranty_PDF.filename : null,
+      green_pro_certificate: green_PDF ? green_PDF.filename : null,
+      category: cat?._id || null,
+      subcategory: subcat?._id || null,
+      typeofproduct: top?._id || null,
+      slug
     });
 
-    await product.save();
-    return res.status(200).json({ success: true, message: "Product submitted successfully", product });
+    const savedProduct = await product.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Product submitted successfully",
+      product: {
+        _id: savedProduct._id,
+        dateCreated: savedProduct.dateCreated,
+        __v: savedProduct.__v,
+        id: savedProduct.id
+      }   
+    });
 
   } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({ success: false, message: "Internal Server Error" });
+    console.error("Error:", error);
+    return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
   }
 };
 
 
+
+
 module.exports.editProduct = async function (req, res) {
-    try {
-        const { product_title, product_subtitle, short_desc, long_desc, category, subcategory, attributes,
-            features, specs, installation_service, additional_info, returns_warranty, spend_save, need_help, free_shipping } = req.body;
+  try {
+    const {
+      product_name,
+      product_subname,
+      product_desc,
+      benefit,
+      application_process,
+      meta_title,
+      meta_desc,
+      category,
+      subcategory,
+      typeofproduct,
+      slug
+    } = req.body;
 
-        const basePathSingleImg = `${req.protocol}://${req.get('host')}/public/uploads/singleImg/`;
-        const basePathColorImg = `${req.protocol}://${req.get('host')}/public/uploads/colorImg/`;
+    // Validate relations (optional)
+    let cat = null, subcat = null, top = null;
 
-        // Ensure attributes are parsed correctly if received as a JSON string
-        const parsedAttributes = (typeof attributes === 'string' ? JSON.parse(attributes) : attributes).map((attribute, index) => {
-            const singleImgFile = req.files.find(file => file.fieldname === `attributes[${index}][single_img]`);
-            const colorImgFile = req.files.find(file => file.fieldname === `attributes[${index}][color_image]`);
-
-            return {
-                sku: attribute.sku,
-                sku_subtitle: attribute.sku_subtitle,
-                single_img: singleImgFile ? `${basePathSingleImg}${singleImgFile.filename}` : attribute.single_img,
-                price: attribute.price,
-                sale_price: attribute.sale_price,
-                color_name: attribute.color_name,
-                color_image: colorImgFile ? `${basePathColorImg}${colorImgFile.filename}` : attribute.color_image,
-                stock: attribute.stock
-            };
-        });
-
-        // Check if the category ID is valid and exists
-        if (!mongoose.Types.ObjectId.isValid(category)) {
-            return res.status(400).json({ success: false, message: 'Invalid Category ID' });
-        }
-
-        const cat = await Category.findById(category);
-        if (!cat) {
-            return res.status(404).json({ success: false, message: "Category not found" });
-        }
-
-        // Check if the subcategory ID is valid and exists
-        if (!mongoose.Types.ObjectId.isValid(subcategory)) {
-            return res.status(400).json({ success: false, message: 'Invalid Subcategory ID' });
-        }
-
-        const subcat = await Subcategory.findById(subcategory);
-        if (!subcat) {
-            return res.status(404).json({ success: false, message: "Subcategory not found" });
-        }
-
-        const product = await Product.findByIdAndUpdate(req.params.id, {
-            product_title,
-            product_subtitle,
-            short_desc,
-            long_desc,
-            category: cat._id,
-            subcategory: subcat._id,
-            attributes: parsedAttributes,
-            features,
-            specs,
-            installation_service,
-            additional_info,
-            returns_warranty,
-            spend_save,
-            need_help,
-            free_shipping
-        }, { new: true });
-
-        if (product) {
-            return res.status(200).json({ success: true, message: "Product updated successfully", product });
-        } else {
-            return res.status(404).json({ success: false, message: "Product not found" });
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        return res.status(500).json({ success: false, message: "Internal Server Error" });
+    if (category) {
+      if (!mongoose.Types.ObjectId.isValid(category)) 
+        return res.status(400).json({ success: false, message: "Invalid Category ID" });
+      cat = await Category.findById(category);
+      if (!cat) return res.status(404).json({ success: false, message: "Category not found" });
     }
+
+    if (subcategory) {
+      if (!mongoose.Types.ObjectId.isValid(subcategory)) 
+        return res.status(400).json({ success: false, message: "Invalid Subcategory ID" });
+      subcat = await Subcategory.findById(subcategory);
+      if (!subcat) return res.status(404).json({ success: false, message: "Subcategory not found" });
+    }
+
+    if (typeofproduct) {
+      if (!mongoose.Types.ObjectId.isValid(typeofproduct)) 
+        return res.status(400).json({ success: false, message: "Invalid TypeOfProduct ID" });
+      top = await TypeOfProduct.findById(typeofproduct);
+      if (!top) return res.status(404).json({ success: false, message: "TypeOfProduct not found" });
+    }
+
+    // File uploads
+    const technical_PDF = req.files?.technical_datasheet?.[0];  
+    const warranty_PDF  = req.files?.warranty_document?.[0];  
+    const green_PDF     = req.files?.green_pro_certificate?.[0]; 
+
+    // Prepare update object
+    const updateData = {
+      product_name,
+      product_subname,
+      product_desc,
+      benefit,
+      application_process,
+      meta_title,
+      meta_desc,
+      technical_datasheet: technical_PDF ? technical_PDF.filename : undefined,
+      warranty_document:  warranty_PDF ? warranty_PDF.filename : undefined,
+      green_pro_certificate: green_PDF ? green_PDF.filename : undefined,
+      category: cat?._id || null,
+      subcategory: subcat?._id || null,
+      typeofproduct: top?._id || null,
+      slug
+    };
+
+    // Update product
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    );
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    return res.status(200).json({ success: true, message: "Product updated successfully", product });
+
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+  }
 };
+
+
+
 
 module.exports.deleteProduct = async function(req,res){
     try{

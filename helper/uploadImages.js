@@ -33,6 +33,12 @@ const storage = multer.diskStorage({
       uploadPath = "public/uploads/product_img";
     } else if (file.fieldname.includes("branch_img")) {
       uploadPath = "public/uploads/branch_img";
+    } else if (file.fieldname.includes("technical_datasheet")) {
+      uploadPath = "public/uploads/product_img";
+    } else if (file.fieldname.includes("warranty_document")) {
+      uploadPath = "public/uploads/product_img";
+    } else if (file.fieldname.includes("green_pro_certificate")) {
+      uploadPath = "public/uploads/product_img";
     }
 
     cb(isValid ? null : new Error("Invalid file type"), uploadPath);
@@ -65,6 +71,9 @@ module.exports = upload.fields([
   { name: "branch_img", maxCount: 1 },
   { name: "product_img", maxCount: 10 },
   { name: "product_small_img", maxCount: 10 },
+  { name: "technical_datasheet", maxCount: 1 },
+  { name: "warranty_document", maxCount: 1 },
+  { name: "green_pro_certificate", maxCount: 1 },  
   { name: "upload_cv", maxCount: 1 },
   { name: "attached_invoices", maxCount: 5 }, // ✅ allow up to 5 invoices
   { name: "colorImg", maxCount: 5 },

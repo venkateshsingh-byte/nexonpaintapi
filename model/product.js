@@ -1,9 +1,7 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose');  
 
-const productDetailSchema = new mongoose.Schema({
-  product_name: { type: String, required: false },   
-  product_img: { type: String, required: false },
-  product_small_img:{ type: String, required: false },
+const productSchema = new mongoose.Schema({
+  product_name: { type: String, required: false },  
   product_subname: { type: String, required: false },
   product_desc: { type: String, required: false },
   technical_datasheet: { type: String },
@@ -28,21 +26,14 @@ const productDetailSchema = new mongoose.Schema({
     ref: "TypeOfProduct", // matches your current model registration
     required: false,
   },
-  slug: { type: String, required: false, unique: true },
+  slug: { type: String, required: false },
   dateCreated: {
     type: Date,
     default: Date.now,
   },
 });
 
-const productSchema = new mongoose.Schema(
-  {
-    details: [productDetailSchema],   
-  },
-  { timestamps: true }
-);
-
-productSchema.virtual('id').get(function () {
+productSchema.virtual('id').get(function () { 
     return this._id.toHexString();
 });
 
