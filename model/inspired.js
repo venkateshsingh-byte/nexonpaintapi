@@ -8,6 +8,9 @@ const inspiredSchema = new mongoose.Schema({
     inspired_full_img:{
         type:String,
     },
+    color_code:{
+        type:String,
+    },
     inspired_small_img:{
         type:String,
     },

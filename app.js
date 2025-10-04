@@ -51,6 +51,7 @@ const inspiredCategoryRouter = require('./routers/inspiredcategories');
 const inspiredRouter = require('./routers/inspireds');
 const typeofproductRouter = require('./routers/typeofproducts');
 const branchRouter = require('./routers/branchs');
+const colorproductbucketRouter = require('./routers/colorproductbucket')
 
 app.use(`${api}/products`, productsRouter); 
 app.use(`${api}/categories`, categoriesRouter);
@@ -69,7 +70,7 @@ app.use(`${api}/inspiredcategories`, inspiredCategoryRouter);
 app.use(`${api}/inspireds`, inspiredRouter);    
 app.use(`${api}/typeofproducts`, typeofproductRouter);
 app.use(`${api}/branchs`, branchRouter);
-
+app.use(`${api}/colorbuckets`, colorproductbucketRouter);
 
 
 mongoose.set('debug', true);

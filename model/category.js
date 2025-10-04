@@ -5,9 +5,18 @@ const categorySchema = new mongoose.Schema({
         type:String,
         reqiired:true,
     },
+    cat_subname:{
+        type:String,
+    },
     cat_url:{
         type:String,
         reqiired:true,
+    },
+    meta_title:{
+        type:String,
+    },
+    meta_desc:{
+        type:String,
     },
     dateCreated:{
         type:Date,

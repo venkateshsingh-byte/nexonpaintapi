@@ -39,6 +39,12 @@ const storage = multer.diskStorage({
       uploadPath = "public/uploads/product_img";
     } else if (file.fieldname.includes("green_pro_certificate")) {
       uploadPath = "public/uploads/product_img";
+    } else if (file.fieldname.includes("product_single_image_banner")) {
+      uploadPath = "public/uploads/product_img";
+    } else if (file.fieldname.includes("product_single_image_banner_small")) {
+      uploadPath = "public/uploads/product_img";
+    } else if (file.fieldname.includes("product_home_banner_img")) {
+      uploadPath = "public/uploads/product_img";
     }
 
     cb(isValid ? null : new Error("Invalid file type"), uploadPath);
@@ -74,6 +80,9 @@ module.exports = upload.fields([
   { name: "technical_datasheet", maxCount: 1 },
   { name: "warranty_document", maxCount: 1 },
   { name: "green_pro_certificate", maxCount: 1 },  
+  { name: "product_single_image_banner", maxCount: 1 },  
+  { name: "product_single_image_banner_small", maxCount: 1 }, 
+  { name: "product_home_banner_img", maxCount: 1 },   
   { name: "upload_cv", maxCount: 1 },
   { name: "attached_invoices", maxCount: 5 }, // ✅ allow up to 5 invoices
   { name: "colorImg", maxCount: 5 },

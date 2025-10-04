@@ -30,7 +30,10 @@ module.exports.addCategory = async function(req, res) {
     try {
         const category = new Category({
             cat_name: req.body.cat_name,
+            cat_subname: req.body.cat_subname,
             cat_url: req.body.cat_url,
+            meta_title:req.body.meta_title,
+            meta_desc:req.body.meta_desc
         });
 
         await category.save();
@@ -47,7 +50,10 @@ module.exports.editCategory = async function(req, res){
             req.params.id,
             {
                 cat_name:req.body.cat_name,
+                cat_subname: req.body.cat_subname,
                 cat_url :req.body.cat_url,
+                meta_title:req.body.meta_title,
+                meta_desc:req.body.meta_desc
             },
             {new:true},
         )
