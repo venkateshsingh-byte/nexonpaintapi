@@ -131,3 +131,36 @@ module.exports.countBranch = async function (req, res) {
     return res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
+
+//https://nexonpaintapi.onrender.com/api/v1/branchs/slug/uttar-pradesh-radha
+module.exports.getBranchBySlug = async function (req, res) {
+  try {
+    const { slug } = req.params; // read from URL
+    if (!slug) {
+      return res.status(400).json({ success: false, message: 'Missing slug' });
+    }
+
+    let doc = await Branch.findOne({ slug_url: slug }).lean();
+
+    if (!doc) {
+      doc = await Branch.findOne({ }).lean().then((b) => null);
+    }
+
+    if (!doc) {
+      return res
+        .status(404)
+        .json({ success: false, message: 'Branch not found' });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Branch fetched successfully',
+      data: doc,
+    });
+  } catch (err) {
+    console.error('Error Slug Based Branch:', err);
+    return res
+      .status(500)
+      .json({ success: false, message: 'Internal Server Error' });
+  }
+};
