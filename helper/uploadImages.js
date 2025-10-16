@@ -84,6 +84,6 @@ module.exports = upload.fields([
   { name: "product_single_image_banner_small", maxCount: 1 }, 
   { name: "product_home_banner_img", maxCount: 1 },   
   { name: "upload_cv", maxCount: 1 },
-  { name: "attached_invoices", maxCount: 5 }, // ✅ allow up to 5 invoices
+  { name: "attached_invoices", maxCount: 1 }, // ✅ allow up to 5 invoices
   { name: "colorImg", maxCount: 5 },
 ]);
