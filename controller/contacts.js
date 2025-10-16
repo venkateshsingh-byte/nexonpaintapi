@@ -53,7 +53,7 @@ module.exports.addContact = async function (req, res) {
     await contact.save();
 
     // ✅ Render email template
-    const templatePath = path.join(__dirname, "../templates/emailContact.ejs");
+    const templatePath = path.join(__dirname, "../templates/EmailContact.ejs");
     const emailHtml = await ejs.renderFile(templatePath, { contact });
 
     // ✅ Send Email
